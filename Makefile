@@ -4,11 +4,14 @@ clean:
 	rm -f ./*.js
 	rm -rf ./build/
 
+purge: clean
+	rm -rf ./elm-stuff
+
 film_info_gen.js:
 ifndef V
-	elm make src/FilmInfoGen.elm --output film_info_gen.js
+	elm make src/FilmInfoGen.elm --output film_info_gen.js --yes
 else
-	elm make src/FilmInfoGen.elm --output film_info_gen.js --warn
+	elm make src/FilmInfoGen.elm --output film_info_gen.js --yes --warn
 endif
 
 index.html:
