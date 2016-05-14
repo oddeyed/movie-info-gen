@@ -1,0 +1,27 @@
+.main {
+    margin-left: auto;
+    margin-right: auto;
+    padding: 5px;
+    width: 60em;
+    border: 1px solid #000000;
+    background-color: #f7f7f7;
+    align-items: center;
+    justify-content: center;
+    font-family: "Lucida Console", Monaco, monospace;
+
+}
+
+.internal {
+    margin-left: auto;
+    margin-right: auto;
+    padding: 5px;
+    background-color: inherit;
+    text-align: center;
+    font-family: inherit;
+}
+
+
+h1 {
+    text-align: center;
+    font-family: inherit;
+}
