@@ -27,12 +27,14 @@ main =
 type alias Model =
     { topic : String
     , gifUrl : String
+    , query : String
+    , visible_query : String
     }
 
 
 init : String -> ( Model, Cmd Msg )
 init topic =
-    ( Model topic "waiting.gif"
+    ( Model topic "waiting.gif" "None" "Foobar"
     , getRandomGif topic
     )
 
@@ -42,7 +44,8 @@ init topic =
 
 
 type Msg
-    = MorePlease
+    = DoSearch
+    | NewQuery String
     | FetchSucceed String
     | FetchFail Http.Error
 
@@ -50,11 +53,14 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update action model =
     case action of
-        MorePlease ->
-            ( model, getRandomGif model.topic )
+        DoSearch ->
+            ( { model | visible_query = model.query }, getRandomGif model.topic )
+
+        NewQuery string ->
+            ( { model | query = string }, Cmd.none )
 
         FetchSucceed newUrl ->
-            ( Model model.topic newUrl, Cmd.none )
+            ( { model | topic = newUrl }, Cmd.none )
 
         FetchFail _ ->
             ( model, Cmd.none )
@@ -72,11 +78,12 @@ view model =
             [ text "Film Info Generator" ]
         {- Next we have the div containing the search bar and button -}
         , div []
-            [ input [ placeholder "Film Title to Search", floatLeft ] []
-            , button [ onClick MorePlease, searchBtn ] [ text "Search!" ]
+            [ input [ placeholder "Film Title to Search", floatLeft, onInput NewQuery ] []
+            , button [ onClick DoSearch, searchBtn ] [ text "Search!" ]
             ]
         {- Next comes poster display, dropdown selection and year select -}
-        , div [] []
+        , div []
+            [ text model.visible_query ]
         {- Then the resulting text, with "Copy xxx to clipboard" buttons -}
         , img [ src model.gifUrl ] []
         ]
