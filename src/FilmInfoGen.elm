@@ -9,6 +9,7 @@ import Json.Decode as Json
 import Task
 import List
 import FilmSearch exposing (..)
+import OmdbFilmData exposing (..)
 import OmdbJson exposing (..)
 
 import Debug
@@ -37,12 +38,13 @@ type alias Model =
     , year : Maybe Int
     , results : List SearchResultModel
     , selectedIdx : String
+    , generatedInfo : String
     }
 
 
 init : String -> ( Model, Cmd Msg )
 init query =
-    ( Model query default_poster "starting up" Nothing [] ""
+    ( Model query default_poster "starting up" Nothing [] "" "Loading..."
     , lookup query Nothing
     )
 
@@ -57,7 +59,7 @@ type Msg
     | FetchSucceed SearchContainerModel
     | FetchFail Http.Error
     | FilmSelected String
-    | GenSucceed SearchContainerModel
+    | GenSucceed FilmDataModel
     | GenFail Http.Error
 
 
@@ -71,15 +73,19 @@ update action model =
             ( { model | query = string }, Cmd.none )
 
         FetchSucceed response ->
-            ( { model | results = response.search, status = unwrap response }, Cmd.none )
+            ( { model | results = response.search
+                        , status = unwrap response
+                        , posterURL = autoGrabPoster response.search }
+            , Cmd.none )
 
         FetchFail error ->
             ( { model | status = toString error }, Cmd.none )
 
         FilmSelected idx ->
-            ( { model | selectedIdx = idx,
-                        posterURL = ( grabPoster idx model.results ) }
-            , generate model.selectedIdx )
+            ( { model | selectedIdx = idx
+                        , status = idx
+                        , posterURL = ( grabPoster idx model.results ) }
+            , getData model.selectedIdx )
 
         _ -> 
             ( model, Cmd.none )
@@ -146,6 +152,17 @@ grabPoster idx results =
             Just res -> res.posterURL
 
 
+-- Special grab poster function for the first loaded
+autoGrabPoster : List SearchResultModel -> String
+autoGrabPoster results =
+    let 
+        entry = List.head results
+    in
+        case entry of
+            Nothing -> default_poster
+            Just res -> res.posterURL
+
+
 -- Event to detect change in selected film
 onChange : (String -> msg) -> Attribute msg
 onChange tagger =
@@ -198,6 +215,6 @@ lookup movie year =
     Task.perform FetchFail FetchSucceed (search movie year)
 
 
-generate : String -> Cmd Msg
-generate imdbID =
-    Task.perform GenFail GenSucceed (search imdbID Nothing)
+getData : String -> Cmd Msg
+getData imdbID =
+    Task.perform GenFail GenSucceed (getFilmData imdbID)
