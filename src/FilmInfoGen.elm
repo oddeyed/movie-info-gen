@@ -8,13 +8,15 @@ import Http
 import Json.Decode as Json
 import Task
 
+import List
+
 import FilmSearch exposing (..)
 import OmdbJson exposing (..)
 
 
 main =
     Html.program
-        { init = init "cats"
+        { init = init "A Room with a View"
         , view = view
         , update = update
         , subscriptions = subscriptions
@@ -29,17 +31,16 @@ type alias Model =
     { topic : String
     , gifUrl : String
     , query : String
-    , visible_query : String
+    , status : String
     , year : Maybe Int
     }
 
 
 init : String -> (Model, Cmd Msg)
 init topic =
-    ( Model topic "waiting.gif" "None" "Foobar" Nothing
-    , lookup "" Nothing
+    ( Model topic "waiting.gif" topic "starting up" Nothing
+    , lookup "Star Wars" Nothing
     )
-
 
 
 -- UPDATE
@@ -56,17 +57,26 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update action model =
     case action of
         DoSearch ->
-            ( { model | visible_query = model.query }, lookup model.query model.year )
+            ( { model | status = "Searching..." }, lookup model.query model.year )
 
         NewQuery string ->
             ( { model | query = string }, Cmd.none )
 
         FetchSucceed response ->
-            ( model, Cmd.none )
+            ( { model | status = unwrap response }, Cmd.none )
 
-        FetchFail _ ->
-            ( model, Cmd.none )
+        FetchFail error ->
+            ( { model | status = toString(error) }, Cmd.none )
 
+
+unwrap : SearchContainerModel -> String
+unwrap searchcontainer =
+  let 
+    top = List.head searchcontainer.search
+  in
+    case top of
+      Just result -> result.imdbID
+      Nothing -> "Empty"
 
 
 -- VIEW
@@ -75,26 +85,39 @@ update action model =
 view : Model -> Html Msg
 view model =
     div [ class "internal" ]
-        {- We start with the title -}
-        [ h1 []
-            [ text "Film Info Generator" ]
-        {- Next we have the div containing the search bar and button -}
-        , div []
-            [ input [ placeholder "Film Title to Search", floatLeft, onInput NewQuery ] []
-            , button [ onClick DoSearch, searchBtn ] [ text "Search!" ]
+        [ div [ class "internal" ]
+            {- We start with the title -}
+            [ h1 []
+                [ text "Film Info Generatorx`" ]
+            {- Next we have the div containing the search bar and button -}
+            , div []
+                -- TODO: Would be nice to have 'push enter' to search
+                [ input [ placeholder "Film Title to Search", floatLeft, onInput NewQuery, onSubmit DoSearch ] []
+                , button [ onClick DoSearch, searchBtn ] [ text "Search!" ]
+                ]
             ]
-        {- Next comes poster display, dropdown selection and year select -}
-        , br [] []
-        {- Then the resulting text, with "Copy xxx to clipboard" buttons -}
-        , img [ src model.gifUrl ] []
+        , div []
+            {- Next comes poster display, dropdown selection and year select -}
+            [ br [] []
+            {- Then the resulting text, with "Copy xxx to clipboard" buttons -}
+            , img [ src model.gifUrl ] []
+            ]
+        , footer [] 
+            [ hr [] []
+            , text <| "Status is... " ++  model.status
+            , br [] []
+            , text "(c) oddeyed - "
+            , a [ href "https://github.com/oddeyed/movie-info-gen" ] [ text "Source @ Github" ]
+            ]
         ]
+
 
 
 floatLeft : Attribute a
 floatLeft =
     style
         [ ( "width", "70%" )
-        , ( "float", "left" )
+        , ( "right", "0px" )
         , ( "height", "40px" )
         , ( "font-family", "inherit" )
         , ( "font-size", "1em" )
@@ -106,7 +129,7 @@ searchBtn : Attribute a
 searchBtn =
     style
         [ ( "width", "25%" )
-        , ( "float", "right" )
+        , ( "left", "0px" )
         , ( "height", "40px" )
         , ( "font-size", "1em" )
         , ( "font-family", "inherit" )
