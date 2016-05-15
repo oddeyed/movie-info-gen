@@ -28,17 +28,16 @@ main =
 
 
 type alias Model =
-    { topic : String
+    { query : String
     , gifUrl : String
-    , query : String
     , status : String
     , year : Maybe Int
     }
 
 
 init : String -> (Model, Cmd Msg)
-init topic =
-    ( Model topic "waiting.gif" topic "starting up" Nothing
+init query =
+    ( Model query "waiting.gif" "starting up" Nothing
     , lookup "Star Wars" Nothing
     )
 
