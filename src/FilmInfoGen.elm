@@ -9,6 +9,7 @@ import Json.Decode as Json
 import Task
 
 import FilmSearch exposing (..)
+import OmdbJson exposing (..)
 
 
 main =
@@ -29,13 +30,14 @@ type alias Model =
     , gifUrl : String
     , query : String
     , visible_query : String
+    , year : Maybe Int
     }
 
 
-init : String -> ( Model, Cmd Msg )
+init : String -> (Model, Cmd Msg)
 init topic =
-    ( Model topic "waiting.gif" "None" "Foobar"
-    , getRandomGif topic
+    ( Model topic "waiting.gif" "None" "Foobar" Nothing
+    , lookup "" Nothing
     )
 
 
@@ -46,7 +48,7 @@ init topic =
 type Msg
     = DoSearch
     | NewQuery String
-    | FetchSucceed String
+    | FetchSucceed SearchContainerModel
     | FetchFail Http.Error
 
 
@@ -54,13 +56,13 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update action model =
     case action of
         DoSearch ->
-            ( { model | visible_query = model.query }, getRandomGif model.topic )
+            ( { model | visible_query = model.query }, lookup model.query model.year )
 
         NewQuery string ->
             ( { model | query = string }, Cmd.none )
 
-        FetchSucceed newUrl ->
-            ( { model | topic = newUrl }, Cmd.none )
+        FetchSucceed response ->
+            ( model, Cmd.none )
 
         FetchFail _ ->
             ( model, Cmd.none )
@@ -82,8 +84,7 @@ view model =
             , button [ onClick DoSearch, searchBtn ] [ text "Search!" ]
             ]
         {- Next comes poster display, dropdown selection and year select -}
-        , div []
-            [ text model.visible_query ]
+        , br [] []
         {- Then the resulting text, with "Copy xxx to clipboard" buttons -}
         , img [ src model.gifUrl ] []
         ]
@@ -124,15 +125,9 @@ subscriptions model =
 
 -- HTTP
 
-
-getRandomGif : String -> Cmd Msg
-getRandomGif topic =
-    let
-        url =
-            "http://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=" ++ topic
-    in
-        Task.perform FetchFail FetchSucceed (Http.get decodeGifUrl url)
-
+lookup : Title -> Maybe Year -> Cmd Msg
+lookup movie year =
+    Task.perform FetchFail FetchSucceed (search movie year)
 
 decodeGifUrl : Json.Decoder String
 decodeGifUrl =

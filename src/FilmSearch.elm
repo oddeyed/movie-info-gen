@@ -1,4 +1,4 @@
-module FilmSearch exposing (search) 
+module FilmSearch exposing (search, Title, Year) 
 
 import Http exposing (url, post, empty, Error)
 import Task exposing (Task)
@@ -13,14 +13,8 @@ type SearchMsg
     = FetchOK SearchContainerModel
     | FetchBad Error
 
-
-search : Title -> Maybe Year -> Cmd SearchMsg
+search : Title -> Maybe Year -> Task Error SearchContainerModel
 search movie year =
-    Task.perform FetchBad FetchOK (doSearch movie year)
-
-
-doSearch : Title -> Maybe Year -> Task Error SearchContainerModel
-doSearch movie year =
     let 
         request = getUrl movie year
     in
