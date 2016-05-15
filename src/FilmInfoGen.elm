@@ -16,6 +16,8 @@ import Debug
 
 default_poster =
     "assets/default_poster.jpg"
+default_description = 
+    (p [style [("float", "right")]] [text "Loading..."])
 
 
 main =
@@ -38,13 +40,14 @@ type alias Model =
     , year : Maybe Int
     , results : List SearchResultModel
     , selectedIdx : String
-    , generatedInfo : String
+    , generatedInfo : Html Msg
     }
 
 
 init : String -> ( Model, Cmd Msg )
 init query =
-    ( Model query default_poster "starting up" Nothing [] "" "Loading..."
+    -- Start with A Room with a View's IMDB ID
+    ( Model query default_poster "starting up" Nothing [] "tt0091867" default_description
     , lookup query Nothing
     )
 
@@ -59,8 +62,8 @@ type Msg
     | FetchSucceed SearchContainerModel
     | FetchFail Http.Error
     | FilmSelected String
-    | GenSucceed FilmDataModel
-    | GenFail Http.Error
+    | GetSucceed FilmDataModel
+    | GetFail Http.Error
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -73,28 +76,25 @@ update action model =
             ( { model | query = string }, Cmd.none )
 
         FetchSucceed response ->
-            ( { model
-                | results = response.search
-                , status = unwrap response
-                , posterURL = autoGrabPoster response.search
-              }
-            , Cmd.none
-            )
-
+            ( { model | results = response.search
+                        , status = unwrap response
+                        , selectedIdx = autoGetID response.search
+                        , posterURL = grabPoster (autoGetID response.search) response.search }
+            , getData model.selectedIdx )
         FetchFail error ->
             ( { model | status = toString error }, Cmd.none )
 
         FilmSelected idx ->
-            ( { model
-                | selectedIdx = idx
-                , status = idx
-                , posterURL = (grabPoster idx model.results)
-              }
-            , getData model.selectedIdx
-            )
+            ( { model | selectedIdx = idx
+                        , status = idx
+                        , posterURL = ( grabPoster idx model.results ) }
+            , getData model.selectedIdx )
 
-        _ ->
-            ( model, Cmd.none )
+        GetFail error ->
+            ( { model | status = toString error }, Cmd.none )
+
+        GetSucceed data ->
+            ( { model | generatedInfo = genDescription data }, Cmd.none )
 
 
 unwrap : SearchContainerModel -> String
@@ -109,6 +109,12 @@ unwrap searchcontainer =
 
             Nothing ->
                 "Empty"
+
+
+genDescription : FilmDataModel -> Html Msg
+genDescription data =
+    (p [style [("text-align", "right"), ("display", "inline-block")]] [text "Fakeout..."])
+
 
 
 
@@ -189,21 +195,14 @@ grabPoster idx results =
 
 
 -- Special grab poster function for the first loaded
-
-
-autoGrabPoster : List SearchResultModel -> String
-autoGrabPoster results =
-    let
-        entry =
-            List.head results
+autoGetID : List SearchResultModel -> String
+autoGetID results =
+    let 
+        entry = List.head results
     in
         case entry of
-            Nothing ->
-                default_poster
-
-            Just res ->
-                res.posterURL
-
+            Nothing -> "0"
+            Just res -> res.imdbID
 
 
 -- Event to detect change in selected film
@@ -243,4 +242,4 @@ lookup movie year =
 
 getData : String -> Cmd Msg
 getData imdbID =
-    Task.perform GenFail GenSucceed (getFilmData imdbID)
+    Task.perform GetFail GetSucceed (getFilmData imdbID)
