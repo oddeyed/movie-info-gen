@@ -7,9 +7,7 @@ import Html.Events exposing (..)
 import Http
 import Json.Decode as Json
 import Task
-
 import List
-
 import FilmSearch exposing (..)
 import OmdbJson exposing (..)
 
@@ -35,11 +33,12 @@ type alias Model =
     }
 
 
-init : String -> (Model, Cmd Msg)
+init : String -> ( Model, Cmd Msg )
 init query =
     ( Model query "waiting.gif" "starting up" Nothing
     , lookup "Star Wars" Nothing
     )
+
 
 
 -- UPDATE
@@ -65,17 +64,22 @@ update action model =
             ( { model | status = unwrap response }, Cmd.none )
 
         FetchFail error ->
-            ( { model | status = toString(error) }, Cmd.none )
+            ( { model | status = toString error }, Cmd.none )
 
 
 unwrap : SearchContainerModel -> String
 unwrap searchcontainer =
-  let 
-    top = List.head searchcontainer.search
-  in
-    case top of
-      Just result -> result.imdbID
-      Nothing -> "Empty"
+    let
+        top =
+            List.head searchcontainer.search
+    in
+        case top of
+            Just result ->
+                result.imdbID
+
+            Nothing ->
+                "Empty"
+
 
 
 -- VIEW
@@ -88,7 +92,7 @@ view model =
             {- We start with the title -}
             [ h1 []
                 [ text "Film Info Generatorx`" ]
-            {- Next we have the div containing the search bar and button -}
+              {- Next we have the div containing the search bar and button -}
             , div []
                 -- TODO: Would be nice to have 'push enter' to search
                 [ input [ placeholder "Film Title to Search", floatLeft, onInput NewQuery, onSubmit DoSearch ] []
@@ -97,19 +101,17 @@ view model =
             ]
         , div []
             {- Next comes poster display, dropdown selection and year select -}
-            [ br [] []
-            {- Then the resulting text, with "Copy xxx to clipboard" buttons -}
+            [ br [] [] {- Then the resulting text, with "Copy xxx to clipboard" buttons -}
             , img [ src model.gifUrl ] []
             ]
-        , footer [] 
+        , footer []
             [ hr [] []
-            , text <| "Status is... " ++  model.status
+            , text <| "Status is... " ++ model.status
             , br [] []
             , text "(c) oddeyed - "
             , a [ href "https://github.com/oddeyed/movie-info-gen" ] [ text "Source @ Github" ]
             ]
         ]
-
 
 
 floatLeft : Attribute a
@@ -147,9 +149,11 @@ subscriptions model =
 
 -- HTTP
 
+
 lookup : Title -> Maybe Year -> Cmd Msg
 lookup movie year =
     Task.perform FetchFail FetchSucceed (search movie year)
+
 
 decodeGifUrl : Json.Decoder String
 decodeGifUrl =
