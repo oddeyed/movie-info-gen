@@ -11,6 +11,11 @@ import List
 import FilmSearch exposing (..)
 import OmdbJson exposing (..)
 
+import Debug
+
+
+default_poster = "assets/default_poster.jpg"
+
 
 main =
     Html.program
@@ -31,12 +36,13 @@ type alias Model =
     , status : String
     , year : Maybe Int
     , results : List SearchResultModel
+    , selectedIdx : String
     }
 
 
 init : String -> ( Model, Cmd Msg )
 init query =
-    ( Model query "assets/default_poster.jpg" "starting up" Nothing []
+    ( Model query default_poster "starting up" Nothing [] ""
     , lookup query Nothing
     )
 
@@ -50,6 +56,9 @@ type Msg
     | NewQuery String
     | FetchSucceed SearchContainerModel
     | FetchFail Http.Error
+    | FilmSelected String
+    | GenSucceed SearchContainerModel
+    | GenFail Http.Error
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -66,6 +75,14 @@ update action model =
 
         FetchFail error ->
             ( { model | status = toString error }, Cmd.none )
+
+        FilmSelected idx ->
+            ( { model | selectedIdx = idx,
+                        posterURL = ( grabPoster idx model.results ) }
+            , generate model.selectedIdx )
+
+        _ -> 
+            ( model, Cmd.none )
 
 
 unwrap : SearchContainerModel -> String
@@ -96,15 +113,15 @@ view model =
               {- Next we have the div containing the search bar and button -}
             , div []
                 -- TODO: Would be nice to have 'push enter' to search
-                [ input [ placeholder "Film Title to Search", floatLeft, onInput NewQuery, onSubmit DoSearch ] []
+                [ input [ placeholder "Film Title to Search", floatLeft, onInput NewQuery ] []
                 , button [ onClick DoSearch, searchBtn ] [ text "Search!" ]
                 ]
             ]
-        , div [ class "internal", style [("width", "75%"), ("text-align", "left")] ]
+        , div [ class "internal", style [("width", "90%"), ("text-align", "left")] ]
             {- Next comes poster display, dropdown selection and year select -}
-            [ select [ style [("text-align", "left"), ("width", "60%")] ] (List.map filmOption model.results)
+            [ select [ style [("text-align", "left"), ("width", "50%")], onChange FilmSelected ] (List.map filmOption model.results)
             , br [] []
-            , img [ src model.posterURL, style [("max-width", "60%"), ("display", "inline-block")] ] []
+            , img [ src model.posterURL, style [("max-width", "50%"), ("display", "inline-block")] ] []
             ]
         -- Then the resulting text, with "Copy xxx to clipboard" buttons
         , footer []
@@ -116,6 +133,23 @@ view model =
             ]
         ]
 
+
+-- Go through the results and get the posterURL for the given idx
+grabPoster : String -> (List SearchResultModel) -> String
+grabPoster idx results =
+    let
+        shortlist = List.filter (\item -> item.imdbID == idx) results
+        entry = List.head shortlist
+    in
+        case entry of
+            Nothing -> default_poster
+            Just res -> res.posterURL
+
+
+-- Event to detect change in selected film
+onChange : (String -> msg) -> Attribute msg
+onChange tagger =
+  on "change" (Json.map tagger targetValue)
 
 -- Converts a SearchResultModel to html description
 filmOption : SearchResultModel -> Html msg
@@ -162,3 +196,8 @@ subscriptions model =
 lookup : Title -> Maybe Year -> Cmd Msg
 lookup movie year =
     Task.perform FetchFail FetchSucceed (search movie year)
+
+
+generate : String -> Cmd Msg
+generate imdbID =
+    Task.perform GenFail GenSucceed (search imdbID Nothing)
