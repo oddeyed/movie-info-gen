@@ -25,7 +25,7 @@ search movie year =
 getUrl : Title -> Maybe Year -> String
 getUrl movie year =
     let
-        addr = "http://www.omdbapi.com/?"
+        addr = "http://www.omdbapi.com/"
         arglist = [("s", movie), ("type", "movie"), ("r", "json")]
     in
         case year of
