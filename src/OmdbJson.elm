@@ -7,6 +7,7 @@ import Json.Decode
         , list
         , string
         , object1
+        , object4
         , object5
         )
 
@@ -52,3 +53,21 @@ searchContainerDecoder : Decoder SearchContainerModel
 searchContainerDecoder =
     object1 SearchContainerModel
         ("Search" := list searchResultDecoder)
+
+
+-- Of the data we are only interested in cast, director, writers and plot
+type alias FilmDataModel = 
+    { cast : String
+    , director : String
+    , writers : String
+    , synopsis : String
+    }
+
+
+filmDataDecoder : Decoder FilmDataModel
+filmDataDecoder =
+    object4 FilmDataModel
+        ("Actors" := string)
+        ("Director" := string)
+        ("Writer" := string)
+        ("Plot" := string)
