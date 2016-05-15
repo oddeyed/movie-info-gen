@@ -74,7 +74,8 @@ update action model =
 
         FetchSucceed response ->
             ( { model | results = response.search
-                        , status = unwrap response }
+                        , status = unwrap response
+                        , posterURL = autoGrabPoster response.search }
             , Cmd.none )
 
         FetchFail error ->
@@ -145,6 +146,17 @@ grabPoster idx results =
     let
         shortlist = List.filter (\item -> item.imdbID == idx) results
         entry = List.head shortlist
+    in
+        case entry of
+            Nothing -> default_poster
+            Just res -> res.posterURL
+
+
+-- Special grab poster function for the first loaded
+autoGrabPoster : List SearchResultModel -> String
+autoGrabPoster results =
+    let 
+        entry = List.head results
     in
         case entry of
             Nothing -> default_poster
