@@ -17,16 +17,6 @@ import Debug
 
 default_poster =
     "assets/default_poster.jpg"
-<<<<<<< 2a2eac5c88feff98eeaa86c0ca4d6a0c3a8f3191
-default_description = 
-    (p [style [("float", "right")]] [text "Loading..."])
-=======
-
-
-default_description =
-    (p [ style [ ( "float", "right" ) ] ] [ text "Loading..." ])
->>>>>>> Running everything through the linter
-
 
 main =
     Html.program
@@ -48,14 +38,14 @@ type alias Model =
     , year : Maybe Int
     , results : List SearchResultModel
     , selectedIdx : String
-    , generatedInfo : Html Msg
+    , generatedInfo : String
     }
 
 
 init : String -> ( Model, Cmd Msg )
 init query =
     -- Start with A Room with a View's IMDB ID
-    ( Model query default_poster "starting up" Nothing [] "tt0091867" default_description
+    ( Model query default_poster "starting up" Nothing [] "tt0091867" "loading"
     , lookup query Nothing
     )
 
@@ -81,12 +71,16 @@ update action model =
             ( { model | status = "Searching..." }, lookup model.query model.year )
 
         NewQuery string ->
-            ( { model | query = string }, Cmd.none )
+            ( { model 
+                | query = string
+                , status = "Pending..."
+             }
+            , Cmd.none )
 
         FetchSucceed response ->
             ( { model
                 | results = response.search
-                , status = unwrap response
+                , status = "OMDB Search Response in..."
                 , selectedIdx = autoGetID response.search
                 , posterURL = grabPoster (autoGetID response.search) response.search
               }
@@ -99,36 +93,27 @@ update action model =
         FilmSelected idx ->
             ( { model
                 | selectedIdx = idx
-                , status = idx
+                , status = "Selected " ++ idx ++ "..."
                 , posterURL = (grabPoster idx model.results)
               }
-            , getData model.selectedIdx
+            , getData idx
             )
 
         GetFail error ->
             ( { model | status = toString error }, Cmd.none )
 
         GetSucceed data ->
-            ( { model | generatedInfo = genDescription data }, Cmd.none )
+            ( { model 
+                | generatedInfo = genDescription data
+                , status = "Generated text for " ++ model.selectedIdx 
+              }
+            , Cmd.none )
 
 
-unwrap : SearchContainerModel -> String
-unwrap searchcontainer =
-    let
-        top =
-            List.head searchcontainer.search
-    in
-        case top of
-            Just result ->
-                result.imdbID
 
-            Nothing ->
-                "Empty"
-
-
-genDescription : FilmDataModel -> Html Msg
+genDescription : FilmDataModel -> String
 genDescription data =
-    (p [ style [ ( "text-align", "right" ), ( "display", "inline-block" ) ] ] [ text (rawBuild data) ])
+    rawBuild data
 
 
 
@@ -162,7 +147,7 @@ resultsBox model =
 
 dropDown model =
     div [ style [ ( "width", "50%" ) ] ]
-        [ select [ onChange FilmSelected ] (List.map filmOption model.results)
+        [ select [ class "dropDown", onChange FilmSelected ] (List.map filmOption model.results)
         , br [] []
         , img [ src model.posterURL ] []
         ]
@@ -179,7 +164,7 @@ inputArea =
 pageFooter model =
     footer []
         [ hr [] []
-        , text <| "Status is... " ++ model.status
+        , text <| "Status is... <" ++ model.status ++ ">"
         , br [] []
         , text "(c) oddeyed - "
         , a [ href "https://github.com/oddeyed/movie-info-gen" ] [ text "Source @ Github" ]
@@ -235,12 +220,6 @@ onChange tagger =
 
 
 -- Converts a SearchResultModel to html description
-
-
-filmOption : SearchResultModel -> Html msg
-filmOption response =
-    Html.option [ value response.imdbID ] [ text <| response.title ++ " (" ++ response.year ++ ")" ]
-
 
 floatLeft : Attribute a
 floatLeft =

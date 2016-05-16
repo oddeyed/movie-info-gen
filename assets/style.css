@@ -51,6 +51,11 @@
 }
 
 
+.dropDown {
+    max-width: 100%;
+}
+
+
 h1 {
     text-align: center;
     font-family: inherit;
