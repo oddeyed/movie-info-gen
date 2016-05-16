@@ -12,14 +12,20 @@ import FilmSearch exposing (..)
 import OmdbFilmData exposing (..)
 import OmdbJson exposing (..)
 import DataTemplates exposing (..)
-
 import Debug
 
 
 default_poster =
     "assets/default_poster.jpg"
+<<<<<<< 2a2eac5c88feff98eeaa86c0ca4d6a0c3a8f3191
 default_description = 
     (p [style [("float", "right")]] [text "Loading..."])
+=======
+
+
+default_description =
+    (p [ style [ ( "float", "right" ) ] ] [ text "Loading..." ])
+>>>>>>> Running everything through the linter
 
 
 main =
@@ -78,19 +84,26 @@ update action model =
             ( { model | query = string }, Cmd.none )
 
         FetchSucceed response ->
-            ( { model | results = response.search
-                        , status = unwrap response
-                        , selectedIdx = autoGetID response.search
-                        , posterURL = grabPoster (autoGetID response.search) response.search }
-            , getData model.selectedIdx )
+            ( { model
+                | results = response.search
+                , status = unwrap response
+                , selectedIdx = autoGetID response.search
+                , posterURL = grabPoster (autoGetID response.search) response.search
+              }
+            , getData model.selectedIdx
+            )
+
         FetchFail error ->
             ( { model | status = toString error }, Cmd.none )
 
         FilmSelected idx ->
-            ( { model | selectedIdx = idx
-                        , status = idx
-                        , posterURL = ( grabPoster idx model.results ) }
-            , getData model.selectedIdx )
+            ( { model
+                | selectedIdx = idx
+                , status = idx
+                , posterURL = (grabPoster idx model.results)
+              }
+            , getData model.selectedIdx
+            )
 
         GetFail error ->
             ( { model | status = toString error }, Cmd.none )
@@ -115,8 +128,7 @@ unwrap searchcontainer =
 
 genDescription : FilmDataModel -> Html Msg
 genDescription data =
-    (p [style [("text-align", "right"), ("display", "inline-block")]] [text (rawBuild data)])
-
+    (p [ style [ ( "text-align", "right" ), ( "display", "inline-block" ) ] ] [ text (rawBuild data) ])
 
 
 
@@ -174,7 +186,6 @@ pageFooter model =
         ]
 
 
-
 -- Go through the results and get the posterURL for the given idx
 
 
@@ -197,14 +208,21 @@ grabPoster idx results =
 
 
 -- Special grab poster function for the first loaded
+
+
 autoGetID : List SearchResultModel -> String
 autoGetID results =
-    let 
-        entry = List.head results
+    let
+        entry =
+            List.head results
     in
         case entry of
-            Nothing -> "0"
-            Just res -> res.imdbID
+            Nothing ->
+                "0"
+
+            Just res ->
+                res.imdbID
+
 
 
 -- Event to detect change in selected film
@@ -217,6 +235,23 @@ onChange tagger =
 
 
 -- Converts a SearchResultModel to html description
+
+
+filmOption : SearchResultModel -> Html msg
+filmOption response =
+    Html.option [ value response.imdbID ] [ text <| response.title ++ " (" ++ response.year ++ ")" ]
+
+
+floatLeft : Attribute a
+floatLeft =
+    style
+        [ ( "width", "70%" )
+        , ( "right", "0px" )
+        , ( "height", "40px" )
+        , ( "font-family", "inherit" )
+        , ( "font-size", "1em" )
+        , ( "text-align", "center" )
+        ]
 
 
 filmOption : SearchResultModel -> Html msg

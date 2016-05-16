@@ -3,6 +3,7 @@ module DataTemplates exposing (..)
 import OmdbJson exposing (FilmDataModel)
 import Template exposing (template, render, withString, withValue)
 
+
 rawTemplate =
     template "<hr><p><strong><u>INFORMATION</u></strong</p>"
         |> withString "<p><strong>CAST: "
@@ -17,7 +18,6 @@ rawTemplate =
         |> withString "<p><strong>SYNOPSIS: "
         |> withValue .synopsis
         |> withString "</strong></p>"
-
 
 
 rawBuild : FilmDataModel -> String
