@@ -11,11 +11,11 @@ import List
 import FilmSearch exposing (..)
 import OmdbFilmData exposing (..)
 import OmdbJson exposing (..)
-
 import Debug
 
 
-default_poster = "assets/default_poster.jpg"
+default_poster =
+    "assets/default_poster.jpg"
 
 
 main =
@@ -73,21 +73,27 @@ update action model =
             ( { model | query = string }, Cmd.none )
 
         FetchSucceed response ->
-            ( { model | results = response.search
-                        , status = unwrap response
-                        , posterURL = autoGrabPoster response.search }
-            , Cmd.none )
+            ( { model
+                | results = response.search
+                , status = unwrap response
+                , posterURL = autoGrabPoster response.search
+              }
+            , Cmd.none
+            )
 
         FetchFail error ->
             ( { model | status = toString error }, Cmd.none )
 
         FilmSelected idx ->
-            ( { model | selectedIdx = idx
-                        , status = idx
-                        , posterURL = ( grabPoster idx model.results ) }
-            , getData model.selectedIdx )
+            ( { model
+                | selectedIdx = idx
+                , status = idx
+                , posterURL = (grabPoster idx model.results)
+              }
+            , getData model.selectedIdx
+            )
 
-        _ -> 
+        _ ->
             ( model, Cmd.none )
 
 
@@ -114,40 +120,39 @@ view model =
     div [ class "internal" ]
         [ div [ class "internal" ]
             {- We start with the title -}
-            [ h1 [] [ text "Film Info Generator" ]
-            {- Next we have the div containing the search bar and button -}
+            [ h1 [] [ text "Film Info Generator" ] {- Next we have the div containing the search bar and button -}
             , div [] [ inputArea ]
             ]
-        {- Then container of dropdown and results box -}
+          {- Then container of dropdown and results box -}
         , div [ class "container" ]
             [ dropDown model
             , resultsBox model
             ]
-        -- Then the page footer
+          -- Then the page footer
         , pageFooter model
         ]
 
 
 resultsBox model =
     div [ class "resultsBox" ]
-    [ text model.generatedInfo  ]
-    
+        [ text model.generatedInfo ]
 
 
 dropDown model =
-    div [ style [("width", "50%")]]
-    [ select [ onChange FilmSelected ] (List.map filmOption model.results)
-    , br [] []
-    , img [ src model.posterURL ] []
-    ]
+    div [ style [ ( "width", "50%" ) ] ]
+        [ select [ onChange FilmSelected ] (List.map filmOption model.results)
+        , br [] []
+        , img [ src model.posterURL ] []
+        ]
 
 
-inputArea = 
+inputArea =
     Html.form [ onSubmit DoSearch ]
         -- TODO: Would be nice to have 'push enter' to search
         [ input [ placeholder "Film Title to Search", class "searchBar", onInput NewQuery ] []
         , button [ onClick DoSearch, class "searchBtn" ] [ text "Search!" ]
         ]
+
 
 pageFooter model =
     footer []
@@ -159,38 +164,61 @@ pageFooter model =
         ]
 
 
+
 -- Go through the results and get the posterURL for the given idx
-grabPoster : String -> (List SearchResultModel) -> String
+
+
+grabPoster : String -> List SearchResultModel -> String
 grabPoster idx results =
     let
-        shortlist = List.filter (\item -> item.imdbID == idx) results
-        entry = List.head shortlist
+        shortlist =
+            List.filter (\item -> item.imdbID == idx) results
+
+        entry =
+            List.head shortlist
     in
         case entry of
-            Nothing -> default_poster
-            Just res -> res.posterURL
+            Nothing ->
+                default_poster
+
+            Just res ->
+                res.posterURL
+
 
 
 -- Special grab poster function for the first loaded
+
+
 autoGrabPoster : List SearchResultModel -> String
 autoGrabPoster results =
-    let 
-        entry = List.head results
+    let
+        entry =
+            List.head results
     in
         case entry of
-            Nothing -> default_poster
-            Just res -> res.posterURL
+            Nothing ->
+                default_poster
+
+            Just res ->
+                res.posterURL
+
 
 
 -- Event to detect change in selected film
+
+
 onChange : (String -> msg) -> Attribute msg
 onChange tagger =
-  on "change" (Json.map tagger targetValue)
+    on "change" (Json.map tagger targetValue)
+
+
 
 -- Converts a SearchResultModel to html description
+
+
 filmOption : SearchResultModel -> Html msg
 filmOption response =
-    Html.option [ value response.imdbID ] [ text <| response.title ++ " (" ++ response.year ++ ")"]
+    Html.option [ value response.imdbID ] [ text <| response.title ++ " (" ++ response.year ++ ")" ]
 
 
 
