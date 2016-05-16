@@ -55,8 +55,11 @@ searchContainerDecoder =
         ("Search" := list searchResultDecoder)
 
 
+
 -- Of the data we are only interested in cast, director, writers and plot
-type alias FilmDataModel = 
+
+
+type alias FilmDataModel =
     { cast : String
     , director : String
     , writers : String
