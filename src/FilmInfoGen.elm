@@ -11,6 +11,8 @@ import List
 import FilmSearch exposing (..)
 import OmdbFilmData exposing (..)
 import OmdbJson exposing (..)
+import DataTemplates exposing (..)
+
 import Debug
 
 
@@ -113,7 +115,7 @@ unwrap searchcontainer =
 
 genDescription : FilmDataModel -> Html Msg
 genDescription data =
-    (p [style [("text-align", "right"), ("display", "inline-block")]] [text "Fakeout..."])
+    (p [style [("text-align", "right"), ("display", "inline-block")]] [text (rawBuild data)])
 
 
 
