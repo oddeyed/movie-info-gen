@@ -119,8 +119,10 @@ view : Model -> Html Msg
 view model =
     div [ class "internal" ]
         [ div [ class "internal" ]
-            {- We start with the title -}
-            [ h1 [] [ text "Film Info Generator" ] {- Next we have the div containing the search bar and button -}
+            {- We start with the title
+               Then we have the div containing the search bar and button
+            -}
+            [ h1 [] [ text "Film Info Generator" ]
             , div [] [ inputArea ]
             ]
           {- Then container of dropdown and results box -}
@@ -128,7 +130,7 @@ view model =
             [ dropDown model
             , resultsBox model
             ]
-          -- Then the page footer
+          {- Then the page footer -}
         , pageFooter model
         ]
 
