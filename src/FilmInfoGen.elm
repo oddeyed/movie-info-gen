@@ -114,29 +114,48 @@ view model =
     div [ class "internal" ]
         [ div [ class "internal" ]
             {- We start with the title -}
-            [ h1 []
-                [ text "Film Info Generator" ]
-              {- Next we have the div containing the search bar and button -}
-            , div []
-                -- TODO: Would be nice to have 'push enter' to search
-                [ input [ placeholder "Film Title to Search", floatLeft, onInput NewQuery ] []
-                , button [ onClick DoSearch, searchBtn ] [ text "Search!" ]
-                ]
+            [ h1 [] [ text "Film Info Generator" ]
+            {- Next we have the div containing the search bar and button -}
+            , div [] [ inputArea ]
             ]
-        , div [ class "internal", style [("width", "90%"), ("text-align", "left")] ]
-            {- Next comes poster display, dropdown selection and year select -}
-            [ select [ style [("text-align", "left"), ("width", "50%")], onChange FilmSelected ] (List.map filmOption model.results)
-            , br [] []
-            , img [ src model.posterURL, style [("max-width", "50%"), ("display", "inline-block")] ] []
+        {- Then container of dropdown and results box -}
+        , div [ class "container" ]
+            [ dropDown model
+            , resultsBox model
             ]
-        -- Then the resulting text, with "Copy xxx to clipboard" buttons
-        , footer []
-            [ hr [] []
-            , text <| "Status is... " ++ model.status
-            , br [] []
-            , text "(c) oddeyed - "
-            , a [ href "https://github.com/oddeyed/movie-info-gen" ] [ text "Source @ Github" ]
-            ]
+        -- Then the page footer
+        , pageFooter model
+        ]
+
+
+resultsBox model =
+    div [ class "resultsBox" ]
+    [ text model.generatedInfo  ]
+    
+
+
+dropDown model =
+    div [ style [("width", "50%")]]
+    [ select [ onChange FilmSelected ] (List.map filmOption model.results)
+    , br [] []
+    , img [ src model.posterURL ] []
+    ]
+
+
+inputArea = 
+    Html.form [ onSubmit DoSearch ]
+        -- TODO: Would be nice to have 'push enter' to search
+        [ input [ placeholder "Film Title to Search", class "searchBar", onInput NewQuery ] []
+        , button [ onClick DoSearch, class "searchBtn" ] [ text "Search!" ]
+        ]
+
+pageFooter model =
+    footer []
+        [ hr [] []
+        , text <| "Status is... " ++ model.status
+        , br [] []
+        , text "(c) oddeyed - "
+        , a [ href "https://github.com/oddeyed/movie-info-gen" ] [ text "Source @ Github" ]
         ]
 
 
@@ -172,29 +191,6 @@ onChange tagger =
 filmOption : SearchResultModel -> Html msg
 filmOption response =
     Html.option [ value response.imdbID ] [ text <| response.title ++ " (" ++ response.year ++ ")"]
-
-
-floatLeft : Attribute a
-floatLeft =
-    style
-        [ ( "width", "70%" )
-        , ( "right", "0px" )
-        , ( "height", "40px" )
-        , ( "font-family", "inherit" )
-        , ( "font-size", "1em" )
-        , ( "text-align", "center" )
-        ]
-
-
-searchBtn : Attribute a
-searchBtn =
-    style
-        [ ( "width", "25%" )
-        , ( "left", "0px" )
-        , ( "height", "40px" )
-        , ( "font-size", "1em" )
-        , ( "font-family", "inherit" )
-        ]
 
 
 

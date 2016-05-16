@@ -20,6 +20,36 @@
     font-family: inherit;
 }
 
+.container {
+    display: flex;
+    flex-direction: row;
+}
+
+
+.resultsBox {
+    width: 45%;
+    padding: 20px;
+    border: 1px solid #0000FF;
+    background-color: #FFFFFF;
+}
+
+
+.searchBar {
+    width: 70%;
+    right: 0px;
+    height: 40px;
+    font-family: inherit;
+    text-align: center;
+}
+
+
+.searchBtn {
+    width: 20%;
+    left: 0px;
+    height: 40px;
+    font-family: inherit;
+}
+
 
 h1 {
     text-align: center;
