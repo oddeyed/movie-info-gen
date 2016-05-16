@@ -141,9 +141,11 @@ view model =
 
 
 resultsBox model =
-    div [ class "resultsBox" ]
-        [ text model.generatedInfo ]
-
+    div [ class "resultsBox" ] 
+        [ h3 [] [ text "OUTPUT:"]
+        ,  div [ class "results" ]
+            [ text model.generatedInfo ]
+        ]
 
 dropDown model =
     div [ style [ ( "width", "50%" ) ] ]
