@@ -39,13 +39,20 @@ type alias Model =
     , results : List SearchResultModel
     , selectedIdx : String
     , generatedInfo : String
+    , generatedType : GenInfoType 
     }
+
+
+type GenInfoType
+    = RawHTML
+    | Rendered
+
 
 
 init : String -> ( Model, Cmd Msg )
 init query =
     -- Start with A Room with a View's IMDB ID
-    ( Model query default_poster "starting up" Nothing [] "tt0091867" "loading"
+    ( Model query default_poster "starting up" Nothing [] "tt0091867" "loading" RawHTML
     , lookup query Nothing
     )
 
@@ -141,11 +148,24 @@ view model =
 
 
 resultsBox model =
-    div [ class "resultsBox" ] 
-        [ h3 [] [ text "OUTPUT:"]
-        ,  div [ class "results" ]
-            [ text model.generatedInfo ]
-        ]
+    let helptext 
+        = "To copy, click in the box and use Ctrl+A "
+        ++ "(Cmd+A on Mac), then Ctrl+C (Cmd+C on Mac)."
+    in
+        case model.generatedType of
+            Rendered ->
+                div [ class "resultsBox" ] 
+                    [ iframe [ class "results", srcdoc model.generatedInfo ] []
+                    , p [] [ text helptext ] 
+                    ]
+
+            RawHTML ->
+                div [ class "resultsBox" ] 
+                    [  div [ class "results" ] [ text model.generatedInfo ]
+                    , p [] [ text helptext ]
+                    ]
+
+
 
 dropDown model =
     div [ style [ ( "width", "50%" ) ] ]
@@ -222,17 +242,6 @@ onChange tagger =
 
 
 -- Converts a SearchResultModel to html description
-
-floatLeft : Attribute a
-floatLeft =
-    style
-        [ ( "width", "70%" )
-        , ( "right", "0px" )
-        , ( "height", "40px" )
-        , ( "font-family", "inherit" )
-        , ( "font-size", "1em" )
-        , ( "text-align", "center" )
-        ]
 
 
 filmOption : SearchResultModel -> Html msg

@@ -28,14 +28,18 @@
 
 .resultsBox {
     width: 50%;
+    height: 100%;
     padding: 10px;
+    display: flex;
+    flex-direction: column;
+
 }
 
 .results {
-    height: 80%;
     border: 1px solid #0000FF;
     background-color: #FFFFFF;
     overflow: auto;
+    height: 400px;
 }
 
 
