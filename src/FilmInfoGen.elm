@@ -18,6 +18,7 @@ import Debug
 default_poster =
     "assets/default_poster.jpg"
 
+
 main =
     Html.program
         { init = init "A Room with a View"
@@ -39,14 +40,13 @@ type alias Model =
     , results : List SearchResultModel
     , selectedIdx : String
     , generatedInfo : String
-    , generatedType : GenInfoType 
+    , generatedType : GenInfoType
     }
 
 
 type GenInfoType
     = RawHTML
     | Rendered
-
 
 
 init : String -> ( Model, Cmd Msg )
@@ -78,11 +78,12 @@ update action model =
             ( { model | status = "Searching..." }, lookup model.query model.year )
 
         NewQuery string ->
-            ( { model 
+            ( { model
                 | query = string
                 , status = "Pending..."
-             }
-            , Cmd.none )
+              }
+            , Cmd.none
+            )
 
         FetchSucceed response ->
             ( { model
@@ -110,12 +111,12 @@ update action model =
             ( { model | status = toString error }, Cmd.none )
 
         GetSucceed data ->
-            ( { model 
+            ( { model
                 | generatedInfo = genDescription data
-                , status = "Generated text for " ++ model.selectedIdx 
+                , status = "Generated text for " ++ model.selectedIdx
               }
-            , Cmd.none )
-
+            , Cmd.none
+            )
 
 
 genDescription : FilmDataModel -> String
@@ -148,23 +149,23 @@ view model =
 
 
 resultsBox model =
-    let helptext 
-        = "To copy, click in the box and use Ctrl+A "
-        ++ "(Cmd+A on Mac), then Ctrl+C (Cmd+C on Mac)."
+    let
+        helptext =
+            "To copy, click in the box and use Ctrl+A "
+                ++ "(Cmd+A on Mac), then Ctrl+C (Cmd+C on Mac)."
     in
         case model.generatedType of
             Rendered ->
-                div [ class "resultsBox" ] 
+                div [ class "resultsBox" ]
                     [ iframe [ class "results", srcdoc model.generatedInfo ] []
-                    , p [] [ text helptext ] 
-                    ]
-
-            RawHTML ->
-                div [ class "resultsBox" ] 
-                    [  div [ class "results" ] [ text model.generatedInfo ]
                     , p [] [ text helptext ]
                     ]
 
+            RawHTML ->
+                div [ class "resultsBox" ]
+                    [ div [ class "results" ] [ text model.generatedInfo ]
+                    , p [] [ text helptext ]
+                    ]
 
 
 dropDown model =
@@ -191,6 +192,7 @@ pageFooter model =
         , text "(c) oddeyed - "
         , a [ href "https://github.com/oddeyed/movie-info-gen" ] [ text "Source @ Github" ]
         ]
+
 
 
 -- Go through the results and get the posterURL for the given idx
