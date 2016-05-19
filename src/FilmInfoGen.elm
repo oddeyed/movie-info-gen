@@ -52,7 +52,7 @@ type GenInfoType
 init : String -> ( Model, Cmd Msg )
 init query =
     -- Start with A Room with a View's IMDB ID
-    ( Model query default_poster "starting up" Nothing [] "tt0091867" "loading" RawHTML
+    ( Model query default_poster "starting up" Nothing [] "tt0091867" "loading" Rendered
     , lookup query Nothing
     )
 
