@@ -69,6 +69,7 @@ type Msg
     | FilmSelected String
     | GetSucceed FilmDataModel
     | GetFail Http.Error
+    | ChangeOutput GenInfoType
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -118,6 +119,13 @@ update action model =
             , Cmd.none
             )
 
+        ChangeOutput opt ->
+            ( { model
+                | generatedType = opt
+              }
+            , Cmd.none
+            )
+
 
 genDescription : FilmDataModel -> String
 genDescription data =
@@ -141,11 +149,30 @@ view model =
           {- Then container of dropdown and results box -}
         , div [ class "container" ]
             [ dropDown model
-            , resultsBox model
+            , outputBox model
             ]
           {- Then the page footer -}
         , pageFooter model
         ]
+
+
+outputBox model =
+    div [ class "outputBox" ]
+        [ radio RawHTML "Raw HTML" model
+        , radio Rendered "Formatted" model
+        , resultsBox model
+        ]
+
+
+radio opt name model =
+    let
+        isSelected =
+            model.generatedType == opt
+    in
+        label []
+            [ input [ type' "radio", checked isSelected, onCheck (\_ -> ChangeOutput opt) ] []
+            , text name
+            ]
 
 
 resultsBox model =
