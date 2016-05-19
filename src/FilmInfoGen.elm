@@ -199,6 +199,7 @@ dropDown model =
     let
         filmOption =
             filmOptionFactory model
+
         opts =
             List.map filmOption model.results
     in
@@ -207,7 +208,6 @@ dropDown model =
             , br [] []
             , img [ src model.posterURL ] []
             ]
-
 
 
 inputArea =
@@ -283,12 +283,12 @@ onChange tagger =
 filmOptionFactory : Model -> (SearchResultModel -> Html msg)
 filmOptionFactory model =
     \resp ->
-        let isSelected =
-            model.selectedIdx == resp.imdbID
+        let
+            isSelected =
+                model.selectedIdx == resp.imdbID
         in
             Html.option [ value resp.imdbID, selected isSelected ]
-                    [ text <| resp.title ++ " (" ++ resp.year ++ ")" ]
-
+                [ text <| resp.title ++ " (" ++ resp.year ++ ")" ]
 
 
 
