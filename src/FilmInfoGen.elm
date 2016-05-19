@@ -196,11 +196,18 @@ resultsBox model =
 
 
 dropDown model =
-    div [ style [ ( "width", "50%" ) ] ]
-        [ select [ class "dropDown", onChange FilmSelected ] (List.map filmOption model.results)
-        , br [] []
-        , img [ src model.posterURL ] []
-        ]
+    let
+        filmOption =
+            filmOptionFactory model
+        opts =
+            List.map filmOption model.results
+    in
+        div [ style [ ( "width", "50%" ) ] ]
+            [ select [ class "dropDown", onChange FilmSelected ] opts
+            , br [] []
+            , img [ src model.posterURL ] []
+            ]
+
 
 
 inputArea =
@@ -273,9 +280,15 @@ onChange tagger =
 -- Converts a SearchResultModel to html description
 
 
-filmOption : SearchResultModel -> Html msg
-filmOption response =
-    Html.option [ value response.imdbID ] [ text <| response.title ++ " (" ++ response.year ++ ")" ]
+filmOptionFactory : Model -> (SearchResultModel -> Html msg)
+filmOptionFactory model =
+    \resp ->
+        let isSelected =
+            model.selectedIdx == resp.imdbID
+        in
+            Html.option [ value resp.imdbID, selected isSelected ]
+                    [ text <| resp.title ++ " (" ++ resp.year ++ ")" ]
+
 
 
 
