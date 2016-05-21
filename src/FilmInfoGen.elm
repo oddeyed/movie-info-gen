@@ -6,12 +6,14 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
 import Json.Decode as Json
+import String exposing (toInt)
 import Task
 import List
 import FilmSearch exposing (..)
 import OmdbFilmData exposing (..)
 import OmdbJson exposing (..)
 import DataTemplates exposing (..)
+import Result exposing (Result, toMaybe, andThen)
 import Debug
 
 
@@ -36,11 +38,12 @@ type alias Model =
     { query : String
     , posterURL : String
     , status : String
-    , year : Maybe Int
+    , yearEnabled : Bool
     , results : List SearchResultModel
     , selectedIdx : String
     , generatedInfo : String
     , generatedType : GenInfoType
+    , yearInput : String
     }
 
 
@@ -52,7 +55,7 @@ type GenInfoType
 init : String -> ( Model, Cmd Msg )
 init query =
     -- Start with A Room with a View's IMDB ID
-    ( Model query default_poster "starting up" Nothing [] "tt0091867" "loading" Rendered
+    ( Model query default_poster "starting up" False [] "tt0091867" "loading" Rendered ""
     , lookup query Nothing
     )
 
@@ -70,13 +73,16 @@ type Msg
     | GetSucceed FilmDataModel
     | GetFail Http.Error
     | ChangeOutput GenInfoType
+    | ChangeYearOpt Bool
+    | NewYear String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update action model =
     case action of
         DoSearch ->
-            ( { model | status = "Searching..." }, lookup model.query model.year )
+            -- Add real function implementation to check the state of 'year' and use yearInput accordingly
+            ( { model | status = "Searching..." }, lookup model.query (assignYear model) )
 
         NewQuery string ->
             ( { model
@@ -126,10 +132,23 @@ update action model =
             , Cmd.none
             )
 
+        ChangeYearOpt status ->
+            ( { model | yearEnabled = status }, Cmd.none )
+
+        NewYear input ->
+            ( { model | yearInput = input }, Cmd.none )
+
 
 genDescription : FilmDataModel -> String
 genDescription data =
     rawBuild data
+
+
+assignYear model =
+    if model.yearEnabled then
+        toMaybe (toInt model.yearInput)
+    else
+        Nothing
 
 
 
@@ -144,7 +163,7 @@ view model =
                Then we have the div containing the search bar and button
             -}
             [ h1 [] [ text "Film Info Generator" ]
-            , div [] [ inputArea ]
+            , div [] [ inputArea model ]
             ]
           {- Then container of dropdown and results box -}
         , div [ class "container" ]
@@ -158,19 +177,25 @@ view model =
 
 outputBox model =
     div [ class "outputBox" ]
-        [ radio RawHTML "Raw HTML" model
-        , radio Rendered "Formatted" model
+        [ outputRadio RawHTML "Raw HTML" model
+        , outputRadio Rendered "Formatted" model
         , resultsBox model
         ]
 
 
-radio opt name model =
+outputRadio opt name model =
     let
         isSelected =
             model.generatedType == opt
+
+        changeHandler = 
+            \_ -> ChangeOutput opt
+
+        radioAttr =
+            [ type' "radio", checked isSelected, onCheck changeHandler ]
     in
         label []
-            [ input [ type' "radio", checked isSelected, onCheck (\_ -> ChangeOutput opt) ] []
+            [ input radioAttr []
             , text name
             ]
 
@@ -210,21 +235,40 @@ dropDown model =
             ]
 
 
-inputArea =
-    Html.form [ onSubmit DoSearch ]
-        -- TODO: Would be nice to have 'push enter' to search
-        [ input [ placeholder "Film Title to Search", class "searchBar", onInput NewQuery ] []
-        , button [ onClick DoSearch, class "searchBtn" ] [ text "Search!" ]
-        ]
+inputArea model =
+    let 
+        searchAttr = 
+            [ placeholder "Film Title to Search", class "searchBar", onInput NewQuery ]
 
+        buttonAttr = 
+            [ onClick DoSearch, class "searchBtn" ]
+
+        checkAttr =
+            [ type' "checkbox", onCheck ChangeYearOpt, class "yearCheck" ]
+
+        yearAttr =
+            [ type' "number", onInput NewYear, disabled (not model.yearEnabled), class "yearBox", placeholder "Refine year" ]
+
+    in
+        Html.form [ onSubmit DoSearch ]
+            [ div [ class "inputArea" ]
+                [ input searchAttr []
+                , button buttonAttr [ text "Search!" ]
+                ]
+            , div [ class "yearInput" ]
+                [ input yearAttr []
+                , input checkAttr []
+                ]
+            ]
+        
 
 pageFooter model =
     footer []
         [ hr [] []
         , text <| "Status is... <" ++ model.status ++ ">"
         , br [] []
-        , text "(c) oddeyed - "
-        , a [ href "https://github.com/oddeyed/movie-info-gen" ] [ text "Source @ Github" ]
+        , text "(c) oddeyed - Please submit issues and feature requests to "
+        , a [ href "https://github.com/oddeyed/movie-info-gen" ] [ text "the project Github" ]
         ]
 
 
