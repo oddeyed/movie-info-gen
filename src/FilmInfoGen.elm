@@ -14,7 +14,6 @@ import OmdbFilmData exposing (..)
 import OmdbJson exposing (..)
 import DataTemplates exposing (..)
 import Result exposing (Result, toMaybe, andThen)
-import Debug
 
 
 default_poster =
