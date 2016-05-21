@@ -5,7 +5,6 @@ import Task exposing (Task)
 import Maybe exposing (Maybe)
 import OmdbJson exposing (..)
 
-
 type alias Title =
     String
 
