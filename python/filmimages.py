@@ -4,7 +4,7 @@ import io
 
 app = Flask(__name__)
 
-api_url = "http://omdbapi.com/?"
+api_url = "https://omdbapi.com/?"
 cert_root = "<REDACTED>"
 
 @app.route("/img/<imdbID>")
