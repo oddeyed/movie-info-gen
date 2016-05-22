@@ -5,6 +5,7 @@ import io
 app = Flask(__name__)
 
 api_url = "http://omdbapi.com/?"
+cert_root = "<REDACTED>"
 
 @app.route("/img/<imdbID>")
 def get_img(imdbID):
@@ -16,7 +17,9 @@ def get_img(imdbID):
     img = requests.get(img_url)
     file = io.BytesIO(img.content)
 
-    return file
+    return send_file(file)
 
 if (__name__) == "__main__":
-    app.run(host=0.0.0.0)
+    context = (cert_root + "cert.pem", cert_root + "privkey.pem")
+    print(context)
+    app.run(host='0.0.0.0', ssl_context=context)
