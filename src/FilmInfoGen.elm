@@ -20,7 +20,7 @@ default_poster =
     "assets/default_poster.jpg"
 
 base_image_addr =
-    "http://filmsearch.janoff.uk:5000/img/"
+    "http://search.rhbrook.co.uk:5000/img/"
 
 
 main =
