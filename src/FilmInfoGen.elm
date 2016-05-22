@@ -19,6 +19,9 @@ import Result exposing (Result, toMaybe, andThen)
 default_poster =
     "assets/default_poster.jpg"
 
+base_image_addr =
+    "http://filmsearch.janoff.uk:5000/img/"
+
 
 main =
     Html.program
@@ -109,6 +112,7 @@ update action model =
                 | selectedIdx = idx
                 , status = "Selected " ++ idx ++ "..."
                 , posterURL = (grabPoster idx model.results)
+                , generatedInfo = "loading"
               }
             , getData idx
             )
@@ -289,7 +293,7 @@ grabPoster idx results =
                 default_poster
 
             Just res ->
-                res.posterURL
+                base_image_addr ++ res.imdbID
 
 
 
