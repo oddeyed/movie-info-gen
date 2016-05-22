@@ -80,12 +80,18 @@
 }
 
 
-.yearCheck {
+.yearBox {
+    font-family: inherit;
+}
 
+
+.yearCheck {
+    font-family: inherit;
 }
 
 
 .dropDown {
+    font-family: inherit;
     max-width: 100%;
 }
 
