@@ -19,7 +19,7 @@ getUrl : String -> String
 getUrl imdbID =
     let
         addr =
-            "http://www.omdbapi.com/"
+            "https://www.omdbapi.com/"
 
         arglist =
             [ ( "i", imdbID ), ( "plot", "full" ), ( "r", "json" ) ]

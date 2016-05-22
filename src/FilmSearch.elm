@@ -32,7 +32,7 @@ getUrl : Title -> Maybe Year -> String
 getUrl movie year =
     let
         addr =
-            "http://www.omdbapi.com/"
+            "https://www.omdbapi.com/"
 
         arglist =
             [ ( "s", movie ), ( "type", "movie" ), ( "r", "json" ) ]
