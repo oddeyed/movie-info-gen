@@ -2,7 +2,7 @@
 Generates a blurb about a movie for use in reviews.
 
 # Location #
-See it live [here](search.rhbrook.co.uk)
+See it live [here](http://search.rhbrook.co.uk)
 
 # Building and Running #
 Requires elm and make to be installed (only tested on Linux).
