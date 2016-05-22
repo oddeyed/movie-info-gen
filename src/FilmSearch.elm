@@ -42,4 +42,4 @@ getUrl movie year =
                 url addr arglist
 
             Just year ->
-                url addr <| arglist ++ [ ( "year", toString year ) ]
+                url addr <| arglist ++ [ ( "y", toString year ) ]
