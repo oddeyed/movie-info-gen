@@ -234,7 +234,7 @@ dropDown model =
         div [ style [ ( "width", "50%" ) ] ]
             [ select [ class "dropDown", onChange FilmSelected ] opts
             , br [] []
-            , img [ src model.posterURL ] []
+            , img [ class "poster", src model.posterURL ] []
             ]
 
 
