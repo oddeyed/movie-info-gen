@@ -68,6 +68,11 @@
 }
 
 
+.footerText {
+    font-size: xx-small;
+}
+
+
 .searchBar {
     width: 75%;
     right: 0px;

@@ -268,12 +268,17 @@ inputArea model =
 pageFooter model =
     footer []
         [ hr [] []
-        , text <| "Status is... <" ++ model.status ++ ">"
-        , br [] []
-        , text "(c) oddeyed - Please submit issues and feature requests to "
-        , a [ href "https://github.com/oddeyed/movie-info-gen" ] [ text "the project Github" ]
+        , span [ class "footerText" ]
+            [ text <| "Status is... <" ++ model.status ++ ">"
+            , br [] []
+            , p []
+                [ text "Website (c) oddeyed 2016 - Data from the OMDB API and IMDB images. "
+                , text "Please submit issues and feature requests to "
+                , a [ href "https://github.com/oddeyed/movie-info-gen" ] [ text "the project Github." ]
+                ]
+            , text "If you want to report a problem, please include the \"Status\" which can be found just above this text."
+            ]
         ]
-
 
 
 -- Go through the results and get the posterURL for the given idx
