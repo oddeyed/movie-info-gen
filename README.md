@@ -1,4 +1,4 @@
-# Movie Information Generater #
+# Movie Information Generator #
 Generates a blurb about a movie for use in reviews.
 
 # Location #
