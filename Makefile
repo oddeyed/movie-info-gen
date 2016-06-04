@@ -22,6 +22,12 @@ src/FilmSearch.elm:
 
 src/OmdbJson.elm:
 	touch src/OmdbJson.elm
+	
+src/DataTemplates.elm:
+	touch src/DataTemplates.elm
+	
+src/OmdbFilmData.elm:
+	touch src/OmdbFilmData.elm
 
 index.html:
 	touch index.html
