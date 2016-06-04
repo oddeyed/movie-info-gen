@@ -11,3 +11,7 @@ Navigate to the project root directory in a shell and run
     make deploy
   
 Then open build/index.html in your browser!
+
+# News #
+* 4th June 2016 - Added plural detection to 'writers' and 'directors'
+* 22nd May 2016 - Site went live
