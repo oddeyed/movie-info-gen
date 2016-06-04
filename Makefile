@@ -7,7 +7,7 @@ clean:
 purge: clean
 	rm -rf ./elm-stuff
 
-film_info_gen.js: src/FilmInfoGen.elm src/FilmSearch.elm src/OmdbJson.elm
+film_info_gen.js: src/FilmInfoGen.elm src/FilmSearch.elm src/OmdbJson.elm src/DataTemplates.elm
 ifndef V
 	elm make src/FilmInfoGen.elm --output film_info_gen.js --yes
 else
